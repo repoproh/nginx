@@ -1,0 +1,71 @@
+rewrite ^/fr$ /fr/ redirect;
+rewrite ^/fr/(.*) /$1;
+rewrite ^/nl$ /nl/ redirect;
+rewrite ^/nl/(.*) /$1;
+rewrite ^/en$ /en/ redirect;
+rewrite ^/en/(.*) /$1;
+
+location ~ /\. { internal; }
+location ~* ^/(php\.ini|php5\.ini)$ { internal; }
+
+set $admin_dir /adminxxx;
+
+# don't log / don't cache
+location ~ /robots\.txt$ { allow all; log_not_found off; access_log off; expires off; }
+
+
+location ~ /(international|_profiler|module|product|feature|attribute|supplier|combination|specific-price|configure)/(.*)$ {
+        try_files $uri $uri/ /index.php?q=$uri&$args $admin_dir/index.php$is_args$args;
+    }
+
+rewrite ^/api/?(.*)$ /webservice/dispatcher.php?url=$1 last;
+rewrite ^/([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$1$2$3.jpg last;
+rewrite ^/([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$1$2$3$4.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$1$2$3$4$5.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$1$2$3$4$5$6.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$1$2$3$4$5$6$7.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$1$2$3$4$5$6$7$8.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$7/$1$2$3$4$5$6$7$8$9.jpg last;
+rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$7/$8/$1$2$3$4$5$6$7$8$9$10.jpg last;
+rewrite ^/c/([0-9]+)(\-[\.*_a-zA-Z0-9-]*)(-[0-9]+)?/.+\.jpg$ /img/c/$1$2$3.jpg last;
+rewrite ^/c/([a-zA-Z_-]+)(-[0-9]+)?/.+\.jpg$ /img/c/$1$2.jpg last;
+rewrite ^/images_ie/?([^/]+)\.(jpe?g|png|gif)$ /js/jquery/plugins/fancybox/images/$1.$2 last;
+
+try_files $uri $uri/ /index.php$is_args$args;
+
+# don't log / extend static caching
+location ~ \.(js|css|jsonp)$ { expires 604800s; access_log off; log_not_found off; }
+location ~ /favicon\.ico$ { expires max; allow all; log_not_found off; access_log off; }
+location ~* \.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|rss|atom|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf)$ { access_log off; expires max; }
+
+# access control
+location ~* \.(eot|ttf|woff)$ { add_header Access-Control-Allow-Origin *; }
+
+rewrite "^/module/([_a-zA-Z0-9-]*)/([_a-zA-Z0-9-]*)$" /index.php?fc=module&module=$1&controller=$2 last;
+
+
+    location /adminxxx/ {  # Change this for your admin url
+        if (!-e $request_filename) {
+            rewrite ^/.*$ /adminxxx/index.php last;
+        }
+}
+
+
+    location / {
+        if (!-e $request_filename) {
+            rewrite ^/.*$ /index.php last;
+        }
+    }
+
+    location ~ .php$ {
+        fastcgi_split_path_info ^(.+.php)(/.*)$;
+        try_files $uri =404;
+        fastcgi_keep_conn on;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_pass unix:/opt/alt/php-fpm7x/usr/var/sockets/user.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_temp_file_write_size 256k;
+        fastcgi_read_timeout 3600;
+    }
+
