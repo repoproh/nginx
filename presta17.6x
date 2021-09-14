@@ -1,7 +1,7 @@
 # set admin folder name
     set $admin_dir /adminxxx; #Example: adminxxx
 
-    location ~ /admin.*/(sell|api|common|_wdt|modules|improve|international|configure|addons|_profiler|product|combination|specific-price)/(.*)$ {
+    location ~ /admin.*/(sell|api|common|_wdt|modules|module|improve|international|configure|addons|_profiler|product|combination|stock|specific-price)/(.*)$ {
         try_files $uri $uri/ /index.php?q=$uri&$args $admin_dir/index.php$is_args$args;
     }
 
