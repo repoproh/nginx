@@ -14,6 +14,10 @@ set $admin_dir /adminxxx;
 location ~ /robots\.txt$ { allow all; log_not_found off; access_log off; expires off; }
 
 
+ location ~ /admin.*/(sell|api|common|_wdt|modules|module|stock|improve|international|configure|addons|_profiler|product|combination|specific-price)/(.*)$ {
+        try_files $uri $uri/ /index.php?q=$uri&$args $admin_dir/index.php$is_args$args;
+
+
 location ~ /(international|_profiler|module|product|feature|attribute|supplier|combination|specific-price|configure)/(.*)$ {
         try_files $uri $uri/ /index.php?q=$uri&$args $admin_dir/index.php$is_args$args;
     }
