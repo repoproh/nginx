@@ -1,3 +1,10 @@
+rewrite ^/fr$ /fr/ redirect;
+rewrite ^/fr/(.*) /$1;
+rewrite ^/nl$ /nl/ redirect;
+rewrite ^/nl/(.*) /$1;
+rewrite ^/en$ /en/ redirect;
+rewrite ^/en/(.*) /$1;
+
 # set admin folder name
     set $admin_dir /adminxxx; #Example: adminxxx
 
